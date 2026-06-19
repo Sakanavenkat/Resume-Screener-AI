@@ -1,4 +1,5 @@
 pdfplumber
+sentence-transformers
 scikit-learn
 flask
 groq
