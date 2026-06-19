@@ -8,7 +8,9 @@ import os, sqlite3
 from datetime import datetime
 
 app = Flask(__name__)
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "gsk_f6zK2l8iXgmAQVtSNw4VWGdyb3FYANgVGBbYaEdxJ3OkeRbrF4")
+from dotenv import load_dotenv
+load_dotenv()
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 def init_db():
     conn = sqlite3.connect("screening_new.db")
@@ -40,78 +42,79 @@ HTML = """
 <!DOCTYPE html>
 <html>
 <head>
-<title>AI Resume Screener</title>
+<title>RESA - Resume Screening AI</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);min-height:100vh;color:#fff}
+body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#e1f5ee,#9fe1cb);min-height:100vh;color:#0a3d2b}
 .app{display:flex;min-height:100vh}
 
 /* SIDEBAR */
-.sidebar{width:220px;background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border-right:1px solid rgba(255,255,255,0.1);padding:24px 16px;position:sticky;top:0;height:100vh}
-.logo{font-size:16px;font-weight:700;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:center}
-.logo span{color:#a78bfa}
-.nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:6px;cursor:pointer;text-decoration:none}
-.nav-item:hover{background:rgba(167,139,250,0.15);color:#fff}
-.nav-dot{width:8px;height:8px;border-radius:50%}
+.sidebar{width:220px;background:#0F6E56;backdrop-filter:blur(20px);border-right:1px solid rgba(255,255,255,0.2);padding:24px 16px}
+.logo{font-size:16px;font-weight:700;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.2);text-align:center;color:#fff}
+.logo span{color:#5DCAA5;font-weight:700}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;color:rgba(255,255,255,0.85);font-size:13px;margin-bottom:6px;cursor:pointer;text-decoration:none;border-radius:8px}
+.nav-item:hover{background:rgba(93,202,165,0.2);color:#fff}
+.nav-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
 /* MAIN */
 .main{flex:1;padding:28px}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-.topbar h1{font-size:20px;font-weight:700}
-.topbar p{color:rgba(255,255,255,0.4);font-size:12px}
+.topbar h1{font-size:20px;font-weight:700;color:#085041}
+.topbar p{color:#2d7a5c;font-size:12px;margin-top:4px}
 
 /* STAT CARDS */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
-.stat{background:rgba(255,255,255,0.07);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px}
-.stat-label{color:rgba(255,255,255,0.5);font-size:11px;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
-.stat-value{font-size:26px;font-weight:700;color:#fff}
-.stat-value small{font-size:13px;color:#34d399;margin-left:6px}
+.stat{background:rgba(255,255,255,0.6);border:1px solid rgba(15,110,86,0.2);border-radius:14px;padding:16px}
+.stat-label{color:#0F6E56;font-size:11px;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.stat-value{font-size:26px;font-weight:700;color:#085041}
+.stat-value small{font-size:13px;color:#0F6E56;margin-left:6px}
 
 /* GLASS CARDS */
-.glass{background:rgba(255,255,255,0.07);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:22px;margin-bottom:20px}
-.glass h2{font-size:14px;font-weight:600;color:rgba(255,255,255,0.9);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.glass{background:rgba(255,255,255,0.6);border:1px solid rgba(15,110,86,0.2);border-radius:16px;padding:22px;margin-bottom:20px}
+.glass h2{font-size:14px;font-weight:600;color:#085041;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(15,110,86,0.15)}
 
 /* FORM */
-.upload-zone{border:1.5px dashed rgba(167,139,250,0.5);border-radius:12px;padding:20px;text-align:center;margin-bottom:14px;color:rgba(255,255,255,0.5);font-size:13px}
-.upload-zone strong{display:block;color:#a78bfa;font-size:15px;margin-bottom:6px}
-input[type=file]{color:rgba(255,255,255,0.7);font-size:13px;margin-top:8px}
-textarea{width:100%;height:110px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px;color:#fff;font-size:13px;resize:vertical;margin-top:8px}
-textarea::placeholder{color:rgba(255,255,255,0.3)}
-label{font-size:13px;color:rgba(255,255,255,0.7);font-weight:600}
+.upload-zone{border:2px dashed rgba(15,110,86,0.4);border-radius:12px;padding:20px;text-align:center;margin-bottom:14px;background:rgba(255,255,255,0.4)}
+.upload-zone strong{display:block;color:#e91e8c;font-size:15px;margin-bottom:6px}
+.upload-zone span{color:#0F6E56;font-size:13px}
+input[type=file]{color:#0a3d2b;font-size:13px;margin-top:8px}
+textarea{width:100%;height:110px;background:rgba(255,255,255,0.7);border:1.5px solid rgba(15,110,86,0.3);border-radius:10px;padding:12px;color:#0a3d2b;font-size:13px;resize:vertical;margin-top:8px}
+textarea::placeholder{color:#5a9a7a}
+label{font-size:13px;color:#085041;font-weight:600}
 .btn{background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;border:none;padding:13px;border-radius:10px;font-size:14px;cursor:pointer;width:100%;margin-top:14px;font-weight:600}
 .btn:hover{opacity:0.9}
 
 /* RANKING TABLE */
 .rank-table{width:100%;border-collapse:collapse;font-size:13px}
-.rank-table th{padding:10px 14px;text-align:left;color:rgba(255,255,255,0.4);font-size:11px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.08)}
-.rank-table td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.05)}
-.rank-table tr:hover td{background:rgba(255,255,255,0.03)}
+.rank-table th{padding:10px 14px;text-align:left;color:#0F6E56;font-size:11px;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(15,110,86,0.15)}
+.rank-table td{padding:12px 14px;border-bottom:1px solid rgba(15,110,86,0.08);color:#0a3d2b}
+.rank-table tr:hover td{background:rgba(255,255,255,0.4)}
 .badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
-.badge.strong{background:rgba(52,211,153,0.2);color:#34d399}
-.badge.moderate{background:rgba(251,191,36,0.2);color:#fbbf24}
-.badge.low{background:rgba(248,113,113,0.2);color:#f87171}
+.badge.strong{background:rgba(52,211,153,0.2);color:#0a7a4a}
+.badge.moderate{background:rgba(251,191,36,0.2);color:#8a6000}
+.badge.low{background:rgba(248,113,113,0.2);color:#9a1010}
 
 /* SCORE BAR */
-.bar-bg{background:rgba(255,255,255,0.08);border-radius:6px;height:8px;width:120px}
+.bar-bg{background:rgba(15,110,86,0.15);border-radius:6px;height:8px;width:120px}
 .bar{height:8px;border-radius:6px}
 
 /* DETAIL */
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
-.detail-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;font-size:12px;line-height:1.7;color:rgba(255,255,255,0.7)}
-.detail-box h4{font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.tip-box{background:rgba(167,139,250,0.1);border-left:3px solid #a78bfa;border-radius:0 10px 10px 0;padding:14px;font-size:12px;line-height:1.8;color:rgba(255,255,255,0.8);margin-top:14px;white-space:pre-wrap}
+.detail-box{background:rgba(255,255,255,0.5);border:1px solid rgba(15,110,86,0.15);border-radius:10px;padding:14px;font-size:12px;line-height:1.7;color:#0a3d2b}
+.detail-box h4{font-size:11px;color:#0F6E56;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:700}
+.tip-box{background:rgba(167,139,250,0.12);border-left:3px solid #7c3aed;border-radius:0 10px 10px 0;padding:14px;font-size:12px;line-height:1.8;color:#0a3d2b;margin-top:14px;white-space:pre-wrap}
 
 /* HISTORY */
 .history-table{width:100%;border-collapse:collapse;font-size:12px}
-.history-table th{padding:8px 12px;color:rgba(255,255,255,0.4);font-size:11px;text-transform:uppercase;letter-spacing:1px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.08)}
-.history-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.7)}
+.history-table th{padding:8px 12px;color:#0F6E56;font-size:11px;text-transform:uppercase;letter-spacing:1px;text-align:left;border-bottom:1px solid rgba(15,110,86,0.15);font-weight:700}
+.history-table td{padding:10px 12px;border-bottom:1px solid rgba(15,110,86,0.08);color:#0a3d2b}
 
 /* CHART */
 .chart-wrap{max-width:500px;margin:0 auto}
 
 /* SECTION ANCHOR */
-.section-title{font-size:11px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:2px;margin:28px 0 14px}
+.section-title{font-size:11px;color:#0F6E56;text-transform:uppercase;letter-spacing:2px;margin:28px 0 14px;font-weight:700}
 </style>
 </head>
 <body>
@@ -119,15 +122,15 @@ label{font-size:13px;color:rgba(255,255,255,0.7);font-weight:600}
 
   <!-- SIDEBAR -->
   <div class="sidebar">
-    <div class="logo">🤖 <span>AI</span>Screen</div>
+    <div class="logo"><img src="/static/logo.png" style="width:35px;height:35px;margin-right:6px;vertical-align:middle"> RESA</div>
     <a class="nav-item" href="#upload">
-      <div class="nav-dot" style="background:#a78bfa"></div> Upload
+      <div class="nav-dot" style="background:#5DCAA5"></div> Upload
     </a>
     <a class="nav-item" href="#rankings">
-      <div class="nav-dot" style="background:#34d399"></div> Rankings
+      <div class="nav-dot" style="background:#fbbf24"></div> Rankings
     </a>
     <a class="nav-item" href="#chart">
-      <div class="nav-dot" style="background:#60a5fa"></div> Chart
+      <div class="nav-dot" style="background:#9fe1cb"></div> Chart
     </a>
     <a class="nav-item" href="#details">
       <div class="nav-dot" style="background:#fbbf24"></div> Details
@@ -141,8 +144,8 @@ label{font-size:13px;color:rgba(255,255,255,0.7);font-weight:600}
   <div class="main">
     <div class="topbar">
       <div>
-        <h1>Resume Screener Dashboard</h1>
-        <p>Powered by NLP + Generative AI</p>
+        <h1>RESA Dashboard</h1>
+        <p>Resume Evaluation & Screening AI</p>
       </div>
     </div>
 
@@ -172,7 +175,7 @@ label{font-size:13px;color:rgba(255,255,255,0.7);font-weight:600}
       <form method="POST" enctype="multipart/form-data">
         <div class="upload-zone">
           <strong>Drop PDF Resumes Here</strong>
-          Select up to 5 resumes at once
+          <span>Select up to 5 resumes at once</span>
           <br>
           <input type="file" name="resumes" accept=".pdf" multiple required>
         </div>
@@ -196,14 +199,12 @@ label{font-size:13px;color:rgba(255,255,255,0.7);font-weight:600}
         </tr>
         {% for r in results %}
         <tr>
-          <td><b style="color:#a78bfa">#{{ loop.index }}</b></td>
-          <td style="color:#fff">{{ r.name }}</td>
-          <td><b>{{ r.score }}%</b></td>
+          <td><b style="color:#7c3aed">#{{ loop.index }}</b></td>
+          <td style="color:#085041;font-weight:600">{{ r.name }}</td>
+          <td><b style="color:#085041">{{ r.score }}%</b></td>
           <td>
             <div class="bar-bg">
-              <div class="bar" style="width:{{ r.score }}%;
-                background:{{ '#34d399' if r.score>=70 else '#fbbf24' if r.score>=50 else '#f87171' }}">
-              </div>
+              <div class="bar" style="width:{{ r.score }}%;background:{% if r.score>=70 %}#0F6E56{% elif r.score>=50 %}#d4a500{% else %}#c0392b{% endif %}"></div>
             </div>
           </td>
           <td>
@@ -265,7 +266,7 @@ label{font-size:13px;color:rgba(255,255,255,0.7);font-weight:600}
         <tr>
           <td>{{ h[6] }}</td>
           <td>{{ h[1] }}</td>
-          <td><b style="color:#a78bfa">{{ h[2] }}%</b></td>
+          <td><b style="color:#0F6E56">{{ h[2] }}%</b></td>
           <td>
             <span class="badge {{ 'strong' if h[2]>=70 else 'moderate' if h[2]>=50 else 'low' }}">
               {{ h[3] }}
@@ -300,12 +301,12 @@ new Chart(ctx, {
     scales:{
       y:{
         beginAtZero:true,max:100,
-        ticks:{color:'rgba(255,255,255,0.5)',callback:v=>v+'%'},
-        grid:{color:'rgba(255,255,255,0.05)'}
+        ticks:{color:'#0F6E56',callback:v=>v+'%'},
+        grid:{color:'rgba(15,110,86,0.1)'}
       },
       x:{
-        ticks:{color:'rgba(255,255,255,0.5)'},
-        grid:{color:'rgba(255,255,255,0.05)'}
+        ticks:{color:'#0F6E56'},
+        grid:{color:'rgba(15,110,86,0.1)'}
       }
     }
   }
@@ -355,9 +356,9 @@ JD: {jd}"""}])
         results = sorted(results, key=lambda x: x["score"], reverse=True)
         labels  = [r["name"] for r in results]
         scores  = [r["score"] for r in results]
-        colors  = ["rgba(52,211,153,0.8)" if s>=70
-                   else "rgba(251,191,36,0.8)" if s>=50
-                   else "rgba(248,113,113,0.8)" for s in scores]
+        colors  = ["rgba(15,110,86,0.8)" if s>=70
+                   else "rgba(212,165,0,0.8)" if s>=50
+                   else "rgba(192,57,43,0.8)" for s in scores]
         return render_template_string(HTML,
             results=results, history=get_history(),
             labels=labels, scores=scores,
@@ -366,7 +367,7 @@ JD: {jd}"""}])
         results=None, history=history, jd="")
 
 if __name__ == "__main__":
-    print("🚀 AI Resume Screener — Glassmorphism Dashboard")
+    print("🚀 AI Resume Screener — RESA Dashboard")
     print("👉 Open: http://localhost:5000")
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)

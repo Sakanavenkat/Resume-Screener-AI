@@ -1,8 +1,10 @@
 import os
 from groq import Groq
+from dotenv import load_dotenv
+load_dotenv()
 
 def explain_match(resume_text, job_description, match_score, keywords):
-    client = Groq(api_key=os.environ.get("GROQ_API_KEY", "gsk_f6zK2l8iXgmAQVtSNw4VWGdyb3FYANgVGBbYaEdxJ3OkeRbrF4"))
+    client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
     prompt = f"""
     You are an expert HR recruiter. Analyze this resume match.
@@ -23,7 +25,7 @@ def explain_match(resume_text, job_description, match_score, keywords):
     """
 
     response = Groq(
-        api_key=os.environ.get("GROQ_API_KEY", "your_key_here")
+        api_key=os.environ.get("GROQ_API_KEY")
     ).chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": prompt}]

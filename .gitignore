@@ -2,3 +2,4 @@ screening_new.db
 screening_history.db 
 __pycache__ 
 *.pyc 
+.env 
