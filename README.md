@@ -1,4 +1,4 @@
- # 🤖 Resume Screener with AI
+ # RESA - Resume Evaluation & Screening AI
 
 An AI-powered web application that automatically screens resumes against job descriptions, ranks candidates by match score, and generates professional HR explanations using Generative AI.
 
