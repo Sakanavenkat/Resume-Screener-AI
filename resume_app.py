@@ -8,9 +8,7 @@ import os, sqlite3
 from datetime import datetime
 
 app = Flask(__name__)
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "gsk_f6zK2l8iXgmAQVtSNw4VWGdyb3FYANgVGBbYaEdxJ3OkeRbrF4
-
-")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "gsk_f6zK2l8iXgmAQVtSNw4VWGdyb3FYANgVGBbYaEdxJ3OkeRbrF4")
 
 def init_db():
     conn = sqlite3.connect("screening_new.db")
