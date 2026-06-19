@@ -16,9 +16,9 @@ def match_resume_to_job(resume_text, job_description):
         resume_emb = m.encode([resume_text])
         job_emb    = m.encode([job_description])
         score = cosine_similarity(resume_emb, job_emb)[0][0]
-        return round(score * 100, 2)
+        return float(round(score * 100, 2))
     except:
         vectorizer = TfidfVectorizer()
         vectors = vectorizer.fit_transform([resume_text, job_description])
         score = cosine_similarity(vectors[0], vectors[1])[0][0]
-        return round(score * 100, 2)
+        return float(round(score * 100, 2))
